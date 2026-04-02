@@ -27,10 +27,5 @@ pipeline {
                 sh 'docker exec app-backend npm run test:integration'
             }
         }
-        post {
-            failure {
-                slackSend(color: 'danger', message: "Dev_app deploy failed")
-            }
-        }
     }
 }

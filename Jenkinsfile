@@ -1,4 +1,10 @@
-triggers {
-  cron('0 2 * * *')
-  pollSCM('H/5 * * * *')
+stage('Inject Secrets') {
+  steps {
+    sh '''
+      cp /home/kist/docker/Dev_app/.env .
+      mkdir -p backend
+      cp /home/kist/docker/Dev_app/backend/.env backend/
+      cp /home/kist/docker/Dev_app/backend/config.json backend/
+    '''
+  }
 } 

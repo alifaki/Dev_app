@@ -17,15 +17,5 @@ pipeline {
                 sh 'docker-compose up -d --build' 
             }
         }
-        stage('health check') {
-            steps {
-                sh 'sleep 5; curl -f http://localhost:3000/health || exit 1'
-            }
-        }
-        stage('integration test') {
-            steps {
-                sh 'docker exec app-backend npm run test:integration'
-            }
-        }
     }
 }

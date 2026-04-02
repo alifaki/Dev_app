@@ -1,4 +1,4 @@
 triggers {
-  cron('0 2 * * *') # Daily 2 AM
-  pollSCM('H/5 * * * *') # Poll every 5 min
+  cron('0 2 * * *') #Daily2AM
+  pollSCM('H/5 * * * *') #Pollevery5min
 } 

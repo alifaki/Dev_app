@@ -13,8 +13,8 @@ pipeline {
         }
         stage('Rebuild & Deploy') {
             steps { 
-                sh 'docker-compose down -v || true' # remove volumes
-                sh 'docker-compose up -d --build' # rebuild images and start
+                sh 'docker-compose down -v || true' 
+                sh 'docker-compose up -d --build' 
             }
         }
         stage('health check') {

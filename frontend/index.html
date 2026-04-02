@@ -1,206 +1,562 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>API Data Fetcher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Nexus Admin · User Manager</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 32px;
-            background: #f9f9f9;
-        }
-        .container {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px #0001;
-            max-width: 500px;
-            margin: auto;
-            padding: 24px;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 16px 0;
-            background: #fafafa;
-        }
-        td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        .result, .error {
-            margin: 12px 0;
-            padding: 12px;
-            border-radius: 4px;
-        }
-        .result {
-            background: #e8fbee;
-            color: #239235;
-        }
-        .error {
-            background: #fbe8e8;
-            color: #c0392b;
-        }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        label {
-            display: inline-block;
-            margin-bottom: 4px;
-        }
-        input {
-            width: 100%;
-            padding: 6px;
-            font-size: 1em;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        button {
-            padding: 8px 20px;
-            background: #2980b9;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            cursor: pointer;
+
+        body {
+            background: linear-gradient(145deg, #eef2f7 0%, #d9e0e8 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
         }
-        button:hover {
-            background: #1a5e8a;
+
+        /* modern glassmorphic container */
+        .glass-panel {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* header area with gradient accent */
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a2a3f 0%, #0f1a26 100%);
+            padding: 1.6rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            background: linear-gradient(120deg, #ffffff, #b9e0ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .dashboard-header p {
+            color: #9ab3cf;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        /* main content grid: left form + right table */
+        .content-split {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 2rem 2rem 2rem 2rem;
+        }
+
+        .create-card {
+            flex: 1.2;
+            min-width: 280px;
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+            padding: 1.6rem 1.8rem;
+            border: 1px solid #eef2f8;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .create-card:hover {
+            box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.12);
+        }
+
+        .table-container {
+            flex: 2.4;
+            min-width: 280px;
+            background: #ffffff;
+            border-radius: 1.5rem;
+            padding: 0.2rem 0 1rem 0;
+            border: 1px solid #eef2f8;
+            overflow-x: auto;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #1e2f3e;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.2rem;
+            border-left: 4px solid #2c7da0;
+            padding-left: 0.8rem;
+        }
+
+        .section-title i {
+            font-size: 1.3rem;
+        }
+
+        .form-group-modern {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group-modern label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #4a627a;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group-modern input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            border: 1.5px solid #e2e8f0;
+            background: #fefefe;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group-modern input:focus {
+            outline: none;
+            border-color: #2c7da0;
+            box-shadow: 0 0 0 3px rgba(44, 125, 160, 0.2);
+            background: #fff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(95deg, #1f6392, #2c7da0);
+            border: none;
+            padding: 0.85rem 1.2rem;
+            width: 100%;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.6rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(95deg, #155072, #236b8a);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(31, 99, 146, 0.25);
+        }
+
+        .btn-secondary {
+            background: #eef2f9;
+            border: none;
+            padding: 0.7rem 1.4rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            color: #1f6392;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e9f3;
+            transform: scale(0.97);
+        }
+
+        /* elegant table */
+        .user-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+        }
+
+        .user-table thead tr {
+            background: #f8fafd;
+        }
+
+        .user-table th {
+            text-align: left;
+            padding: 1rem 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e2edf2;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+        }
+
+        .user-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #ecf3f8;
+            color: #1f2d3a;
+            vertical-align: middle;
+        }
+
+        .user-table tr:hover td {
+            background-color: #fafcff;
+        }
+
+        .badge-age {
+            background: #e9f0f5;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c7da0;
+            display: inline-block;
+        }
+
+        .empty-row td {
+            text-align: center;
+            padding: 2rem;
+            color: #8ba0b5;
+            font-style: italic;
+        }
+
+        .message-bubble {
+            margin-top: 1rem;
+            padding: 0.8rem 1rem;
+            border-radius: 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            animation: fadeSlide 0.25s ease-out;
+        }
+
+        .success-msg {
+            background: #e0f2e9;
+            color: #1e6f3f;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .error-msg {
+            background: #fee9e6;
+            color: #c23d2b;
+            border-left: 4px solid #e67e22;
+        }
+
+        .refresh-hint {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 0.2rem;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 780px) {
+            body {
+                padding: 1rem;
+            }
+            .content-split {
+                padding: 1.2rem;
+                gap: 1.2rem;
+            }
+            .user-table th, .user-table td {
+                padding: 0.7rem 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>API v1 Demo</h1>
-
-        <button id="getBtn">GET Data</button>
-        <div id="getResult"></div>
-        <hr>
-
-        <h2>Create User</h2>
-        <form id="createUserForm">
-            <div class="form-group">
-                <label for="first_name">First Name:</label>
-                <input type="text" id="first_name" name="first_name" required value="John">
-            </div>
-            <div class="form-group">
-                <label for="last_name">Last Name:</label>
-                <input type="text" id="last_name" name="last_name" required value="Doe">
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required value="jane.doe@example.com">
-            </div>
-            <div class="form-group">
-                <label for="password_hash">Password:</label>
-                <input type="password" id="password_hash" name="password_hash" required value="123456">
-            </div>
-            <div class="form-group">
-                <label for="age">Age:</label>
-                <input type="number" id="age" name="age" required value="20">
-            </div>
-            <button type="submit">Create User</button>
-        </form>
-        <div id="createUserResult"></div>
+<div class="glass-panel">
+    <div class="dashboard-header">
+        <h1>✨ Nexus User Hub</h1>
+        <p>Real-time user directory · auto‑sync on creation</p>
     </div>
-    <script>
-        const apiUrl = "http://142.171.153.251:3000/api/v1";
+    <div class="content-split">
+        <!-- LEFT: Create user form -->
+        <div class="create-card">
+            <div class="section-title">
+                <span>➕</span> 
+                <span>Create new instance</span>
+            </div>
+            <form id="createUserForm">
+                <div class="form-group-modern">
+                    <label>First name</label>
+                    <input type="text" id="first_name" name="first_name" required value="Emma" autocomplete="off">
+                </div>
+                <div class="form-group-modern">
+                    <label>Last name</label>
+                    <input type="text" id="last_name" name="last_name" required value="Watson" autocomplete="off">
+                </div>
+                <div class="form-group-modern">
+                    <label>Email address</label>
+                    <input type="email" id="email" name="email" required value="emma.w@nexus.com" autocomplete="off">
+                </div>
+                <div class="form-group-modern">
+                    <label>Password</label>
+                    <input type="password" id="password_hash" name="password_hash" required value="pass123" autocomplete="off">
+                </div>
+                <div class="form-group-modern">
+                    <label>Age (years)</label>
+                    <input type="number" id="age" name="age" required value="28" autocomplete="off">
+                </div>
+                <button type="submit" class="btn-primary">
+                    <span>✨</span> Create user & auto-refresh table
+                </button>
+            </form>
+            <div id="createUserResult" style="margin-top: 1rem;"></div>
+        </div>
 
-        // GET data logic
-        document.getElementById('getBtn').addEventListener('click', async () => {
-            const resultDiv = document.getElementById('getResult');
-            resultDiv.innerHTML = '';
-            try {
-                const response = await fetch(apiUrl + "/get-user");
-                const data = await response.json();
-                console.log(data);
-                // The backend returns an array for /get-user, not {status, ...}.
-                if (Array.isArray(data)) {
-                    resultDiv.innerHTML = `
-                        <div class="result">
-                            <strong>Fetched ${data.length} users.</strong>
-                            <table>
-                                <tr><td><b>ID</b></td><td><b>First Name</b></td><td><b>Last Name</b></td><td><b>Age</b></td><td><b>Email</b></td></tr>
-                                ${data.map((user)=>
-                                    `<tr>
-                                        <td>${user.id}</td>
-                                        <td>${user.first_name}</td>
-                                        <td>${user.last_name}</td>
-                                        <td>${user.age}</td>
-                                        <td>${user.email}</td>
-                                    </tr>`
-                                ).join('')}
-                            </table>
-                        </div>
-                    `;
-                } else if (data.status === "error") {
-                    resultDiv.innerHTML = `<div class="error">Error: ${data.message || 'Unknown error.'}</div>`;
-                } else {
-                    resultDiv.innerHTML = `<div class="error">Unexpected response format.</div>`;
+        <!-- RIGHT: Dynamic table + GET controls -->
+        <div class="table-container">
+            <div class="refresh-hint">
+                <div class="section-title" style="border-left-color: #61a5c2; margin-bottom: 0;">
+                    <span>📋</span>
+                    <span>Live directory</span>
+                </div>
+                <button id="getBtn" class="btn-secondary" style="margin-bottom: 0;">
+                    🔄 Refresh data
+                </button>
+            </div>
+            <div id="dynamicTableWrapper" style="overflow-x: auto;">
+                <!-- table will be injected here -->
+                <table class="user-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First name</th>
+                            <th>Last name</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr class="empty-row">
+                            <td colspan="5">⏳ Loading users... click "Refresh data"</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="getResult" style="margin: 0.8rem 1rem 0.5rem 1rem;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "http://142.171.153.251:3000/api/v1";
+
+    // ---------- Helper: render table with fresh user data ----------
+    async function fetchAndRenderUsers() {
+        const resultDiv = document.getElementById('getResult');
+        const tableBody = document.getElementById('tableBody');
+        // clear any stale temporary messages (but keep UI clean)
+        if (resultDiv) resultDiv.innerHTML = '';
+        
+        try {
+            const response = await fetch(`${API_BASE}/get-user`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            
+            // backend returns an array of user objects for /get-user
+            if (Array.isArray(data)) {
+                if (data.length === 0) {
+                    tableBody.innerHTML = `<tr class="empty-row"><td colspan="5">📭 No users found. Create your first user! 📭</td></tr>`;
+                    resultDiv.innerHTML = `<div class="message-bubble success-msg">✓ Table updated · ${data.length} users loaded</div>`;
+                    setTimeout(() => {
+                        if (resultDiv.innerHTML.includes('Table updated')) resultDiv.innerHTML = '';
+                    }, 2000);
+                    return;
                 }
-            } catch (err) {
-                resultDiv.innerHTML = `<div class="error">Fetch error: ${err.message}</div>`;
+                
+                // build table rows
+                const rows = data.map(user => `
+                    <tr>
+                        <td style="font-weight: 500; color:#1f6392;">${escapeHtml(String(user.id ?? '—'))}</td>
+                        <td>${escapeHtml(user.first_name ?? '')}</td>
+                        <td>${escapeHtml(user.last_name ?? '')}</td>
+                        <td><span class="badge-age">${escapeHtml(String(user.age ?? '—'))}</span></td>
+                        <td style="word-break: break-all;">${escapeHtml(user.email ?? '')}</td>
+                    </tr>
+                `).join('');
+                tableBody.innerHTML = rows;
+                resultDiv.innerHTML = `<div class="message-bubble success-msg">🔄 Auto‑synced · ${data.length} user${data.length !== 1 ? 's' : ''} displayed</div>`;
+                setTimeout(() => {
+                    if (resultDiv.firstChild && resultDiv.innerHTML.includes('Auto‑synced')) resultDiv.innerHTML = '';
+                }, 2200);
+            } 
+            else if (data && data.status === "error") {
+                tableBody.innerHTML = `<tr class="empty-row"><td colspan="5">⚠️ API error: ${escapeHtml(data.message || 'Unknown')}</td></tr>`;
+                resultDiv.innerHTML = `<div class="message-bubble error-msg">⚠️ ${escapeHtml(data.message || 'Failed to fetch')}</div>`;
+            } 
+            else {
+                tableBody.innerHTML = `<tr class="empty-row"><td colspan="5">⚠️ Unexpected server response format.</td></tr>`;
+                resultDiv.innerHTML = `<div class="message-bubble error-msg">⚠️ Invalid data structure from server.</div>`;
             }
-        });
+        } catch (err) {
+            console.error("Fetch error:", err);
+            tableBody.innerHTML = `<tr class="empty-row"><td colspan="5">🔌 Connection error: ${escapeHtml(err.message)}</td></tr>`;
+            resultDiv.innerHTML = `<div class="message-bubble error-msg">❌ Network error: ${escapeHtml(err.message)}</div>`;
+        }
+    }
 
-        // POST data logic
-        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const postResultDiv = document.getElementById('createUserResult');
-            postResultDiv.innerHTML = '';
-
-            // Grab the values from the form inputs using proper variable names
-            // These must match backend expects: first_name, last_name, email, password_hash, age
-            const first_name = document.getElementById('first_name').value;
-            const last_name = document.getElementById('last_name').value;
-            const email = document.getElementById('email').value;
-            const password_hash = document.getElementById('password_hash').value;
-            const age = document.getElementById('age').value;
-
-            // first_name, last_name are submitted as part of the JSON object because the backend (Express/Sequelize) expects
-            // user data as a single object, not as URL-encoded fields (like form fields or query params). So, when sending 
-            // JSON, you put all user properties in one JS object and serialize it (see below).
-            try {
-                const response = await fetch(apiUrl + "/create-user", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ first_name, last_name, email, password_hash, age })
-                });
-                const data = await response.json();
-                if (!data.status) {
-                    // backend returns the created user object, so show the values
-                    postResultDiv.innerHTML = `
-                        <div class="result">
-                            <strong>User created successfully!</strong>
-                            <table>
-                                <tr>
-                                    <td>${data.id}</td>
-                                    <td>${data.first_name}</td>
-                                    <td>${data.last_name}</td>
-                                    <td>${data.age}</td>
-                                    <td>${data.email}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    `;
-                } else if (data.status === "error") {
-                    postResultDiv.innerHTML = `<div class="error">Error: ${data.message || 'Unknown error.'}</div>`;
-                } else {
-                    postResultDiv.innerHTML = `<div class="error">Unexpected response format.</div>`;
-                }
-            } catch (err) {
-                postResultDiv.innerHTML = `<div class="error">Fetch error: ${err.message}</div>`;
+    // ----- CREATE user & AUTOMATICALLY refresh table -----
+    async function createUserAndRefresh(userPayload) {
+        const postResultDiv = document.getElementById('createUserResult');
+        postResultDiv.innerHTML = '<div class="message-bubble" style="background:#eef2ff;">⏳ Creating user, please wait...</div>';
+        
+        try {
+            const response = await fetch(`${API_BASE}/create-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userPayload)
+            });
+            
+            const data = await response.json();
+            
+            // The backend returns created user object directly (or sometimes status field)
+            // According to original spec: success returns user object (id, first_name, ...)
+            if (data && !data.status && (data.id || data.email)) {
+                // Success: show creation success mini notification
+                postResultDiv.innerHTML = `
+                    <div class="message-bubble success-msg">
+                        ✅ User "${escapeHtml(data.first_name)} ${escapeHtml(data.last_name)}" created (ID: ${data.id})
+                    </div>
+                `;
+                // ✨ AUTOMATICALLY refresh the table with new data ✨
+                await fetchAndRenderUsers();
+                // clear success message after few seconds but keep table updated
+                setTimeout(() => {
+                    if (postResultDiv.innerHTML.includes('created')) postResultDiv.innerHTML = '';
+                }, 3000);
+                // optional: scroll to table to notice change
+                document.querySelector('.table-container')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } 
+            else if (data.status === "error") {
+                postResultDiv.innerHTML = `<div class="message-bubble error-msg">❌ Creation failed: ${escapeHtml(data.message || 'Backend error')}</div>`;
+                setTimeout(() => {
+                    if (postResultDiv.innerHTML.includes('Creation failed')) postResultDiv.innerHTML = '';
+                }, 4000);
             }
+            else {
+                // fallback: maybe the API returns created user but wrapped? We try to re-fetch anyway
+                // if we get weird but status not error, refresh table to be safe
+                await fetchAndRenderUsers();
+                postResultDiv.innerHTML = `<div class="message-bubble success-msg">📦 User created (server response). Table refreshed.</div>`;
+                setTimeout(() => {
+                    if (postResultDiv.innerHTML.includes('refreshed')) postResultDiv.innerHTML = '';
+                }, 2800);
+            }
+        } catch (err) {
+            console.error("POST create error:", err);
+            postResultDiv.innerHTML = `<div class="message-bubble error-msg">🚫 Request failed: ${escapeHtml(err.message)}</div>`;
+            setTimeout(() => {
+                if (postResultDiv.innerHTML.includes('Request failed')) postResultDiv.innerHTML = '';
+            }, 4000);
+        }
+    }
+
+    // ---------- FORM SUBMIT HANDLER (AUTO UPDATE TABLE) ----------
+    const createForm = document.getElementById('createUserForm');
+    createForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        // Gather input values
+        const first_name = document.getElementById('first_name').value.trim();
+        const last_name = document.getElementById('last_name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password_hash = document.getElementById('password_hash').value;
+        const ageRaw = document.getElementById('age').value;
+        const age = parseInt(ageRaw, 10);
+        
+        // Basic validation
+        if (!first_name || !last_name || !email || !password_hash || isNaN(age)) {
+            const resultDiv = document.getElementById('createUserResult');
+            resultDiv.innerHTML = `<div class="message-bubble error-msg">⚠️ All fields are required and age must be a number.</div>`;
+            setTimeout(() => {
+                if (resultDiv.innerHTML.includes('All fields')) resultDiv.innerHTML = '';
+            }, 2500);
+            return;
+        }
+        
+        // payload matches backend expectations
+        const payload = {
+            first_name,
+            last_name,
+            email,
+            password_hash,
+            age: age
+        };
+        
+        // call creation + auto refresh table
+        await createUserAndRefresh(payload);
+        
+        // optional: clear only password field for security but keep demo values
+        // but we keep as is to speed testing, but reset password for better UX? not mandatory.
+        // (We don't reset to keep demo friendly, but user can change anytime)
+        // If you want to clear password field for security uncomment next line:
+        // document.getElementById('password_hash').value = '';
+    });
+    
+    // ----- MANUAL REFRESH BUTTON (GET data) -----
+    const getButton = document.getElementById('getBtn');
+    getButton.addEventListener('click', async () => {
+        // show loading hint in result area
+        const resultDiv = document.getElementById('getResult');
+        resultDiv.innerHTML = `<div class="message-bubble" style="background:#eef2ff;">🔄 Refreshing directory...</div>`;
+        await fetchAndRenderUsers();
+        // update result message already handled inside fetchAndRenderUsers, but remove loading after render
+        setTimeout(() => {
+            if (resultDiv.innerHTML.includes('Refreshing directory')) {
+                resultDiv.innerHTML = `<div class="message-bubble success-msg">✓ Latest users loaded</div>`;
+                setTimeout(() => {
+                    if (resultDiv.innerHTML.includes('Latest users')) resultDiv.innerHTML = '';
+                }, 1800);
+            }
+        }, 100);
+    });
+    
+    // helper: simple XSS protection
+    function escapeHtml(str) {
+        if (str === undefined || str === null) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
         });
-    </script>
+    }
+    
+    // ---- LOAD INITIAL DATA ON PAGE LOAD (auto shows table) ----
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchAndRenderUsers().catch(e => {
+            console.warn("Initial load", e);
+            const tbody = document.getElementById('tableBody');
+            if (tbody) tbody.innerHTML = `<tr class="empty-row"><td colspan="5">⚠️ Could not connect to API. Check endpoint or network.</td></tr>`;
+        });
+    });
+</script>
 </body>
 </html>
